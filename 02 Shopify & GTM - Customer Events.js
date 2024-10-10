@@ -32,32 +32,33 @@ const config = {
 ****************************** END OF GLOBAL SETTINGS ******************************
 ********************************************************************************** */
 
-//Store the clean page URL (and other things) in the dataLayer before GTM loads
+const pageDataInit = init.context?.document?.location;
+
+// Store the clean page URL (and other things) in the dataLayer before GTM loads
 window.dataLayer = window.dataLayer || [];
 dataLayer.push({
-  page_location : init.context.document?.location?.href,
-  page_referrer : init.context.document?.referrer,
-  page_title : init.context.document?.title,
+    page_location: pageDataInit?.href,
+    page_referrer: pageDataInit?.referrer,
+    page_title: pageDataInit?.title,
 });
 
 
-  // Insert GTM script
-  (function(w,d,s,l,i){
-    w[l]=w[l]||[];
-    w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-    var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
-    j.async=true;
-    j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-    f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer', config.conversionTracking.gtmContainerId);
+// Insert GTM script
+(function(w,d,s,l,i){
+w[l]=w[l]||[];
+w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
+j.async=true;
+j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer', config.conversionTracking.gtmContainerId);
 
 
 
 /* *******************************************************************************
 ****************************** NON-ECOMMERCE EVENTS ******************************
 ********************************************************************************** */
-const pageLocationInit = init.context?.document?.location?.href;
 
 /* *************** PAGE VIEW TRACKING *************** */
 if (config.conversionTracking.trackPageViews) {
@@ -78,7 +79,7 @@ if (config.conversionTracking.trackClicks) {
         window.dataLayer.push({
             'event': 'custom_click_storefront',
             'data': event.customData,
-            'page_location': pageLocationInit,
+            'page_location': pageDataInit?.href,
         });
     });
       
@@ -86,7 +87,7 @@ if (config.conversionTracking.trackClicks) {
         window.dataLayer.push({
             'event': 'custom_click_link_storefront',
             'data': event.customData,
-            'page_location': pageLocationInit,
+            'page_location': pageDataInit?.href,
         });
     });
     /* *************** END OF CLICK TRACKING - storefront *************** */
@@ -106,7 +107,7 @@ if (config.conversionTracking.trackClicks) {
                 click_text : element?.value || '',
                 click_target : '',
                 click_url : element?.href || '',
-                page_location: pageLocationInit
+                page_location: pageDataInit?.href
             }
         }
         
@@ -136,7 +137,7 @@ if (config.conversionTracking.trackFormSubmit) {
     analytics.subscribe('form_submitted', (event) => {
         window.dataLayer.push({
             event: 'form_submit',
-            page_location: pageLocationInit,
+            page_location: pageDataInit?.href,
             form_action: event.data?.element?.action,
             form_id: event.data?.element?.id,
         });
