@@ -32,18 +32,15 @@ const config = {
 ****************************** END OF GLOBAL SETTINGS ******************************
 ********************************************************************************** */
 
-
-// Initialize data layer & gtag
-// Ensure dataLayer is globally accessible
+//Store the clean page URL (and other things) in the dataLayer before GTM loads
 window.dataLayer = window.dataLayer || [];
+dataLayer.push({
+  page_location : init.context.document?.location?.href,
+  page_referrer : init.context.document?.referrer,
+  page_title : init.context.document?.title,
+});
 
-function gtag() {
-  dataLayer.push(arguments);
-}
 
-// Function to initialize GTM
-function initializeGTM() {
-  
   // Insert GTM script
   (function(w,d,s,l,i){
     w[l]=w[l]||[];
@@ -56,7 +53,6 @@ function initializeGTM() {
   })(window,document,'script','dataLayer', config.conversionTracking.gtmContainerId);
 }
 
-initializeGTM();
 
 
 /* *******************************************************************************
