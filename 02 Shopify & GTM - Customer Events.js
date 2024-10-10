@@ -32,14 +32,14 @@ const config = {
 ****************************** END OF GLOBAL SETTINGS ******************************
 ********************************************************************************** */
 
-const pageDataInit = init.context?.document?.location;
+const initContextData = init.context?.document;
 
 // Store the clean page URL (and other things) in the dataLayer before GTM loads
 window.dataLayer = window.dataLayer || [];
 dataLayer.push({
-    page_location: pageDataInit?.href,
-    page_referrer: pageDataInit?.referrer,
-    page_title: pageDataInit?.title,
+    page_location: initContextData?.location?.href,
+    page_referrer: initContextData?.referrer,
+    page_title: initContextData?.title,
 });
 
 
@@ -63,11 +63,14 @@ f.parentNode.insertBefore(j,f);
 /* *************** PAGE VIEW TRACKING *************** */
 if (config.conversionTracking.trackPageViews) {
     analytics.subscribe("page_viewed", (event) => {
+
+        const eventContextData = event.context?.document;
+
         window.dataLayer.push({
             'event': 'page_view',
-            'page_location': event.context?.document?.location?.href,
-            'page_referrer': event.context?.document?.referrer,
-            'page_title': event.context?.document?.title,
+            'page_location': eventContextData?.location?.href,
+            'page_referrer': eventContextData?.referrer,
+            'page_title': eventContextData?.title,
         });
     });
 }
@@ -79,7 +82,7 @@ if (config.conversionTracking.trackClicks) {
         window.dataLayer.push({
             'event': 'custom_click_storefront',
             'data': event.customData,
-            'page_location': pageDataInit?.href,
+            'page_location': initContextData?.location?.href,
         });
     });
       
@@ -87,13 +90,13 @@ if (config.conversionTracking.trackClicks) {
         window.dataLayer.push({
             'event': 'custom_click_link_storefront',
             'data': event.customData,
-            'page_location': pageDataInit?.href,
+            'page_location': initContextData?.location?.href,
         });
     });
     /* *************** END OF CLICK TRACKING - storefront *************** */
       
     /* *************** CLICK TRACKING - checkout *************** */
-    if (init.context?.document?.location?.href.includes('/checkouts/')) {
+    if (initContextData?.location?.href.includes('/checkouts/')) {
         analytics.subscribe('clicked', (event) => {
         const element = event.data?.element;
         
@@ -107,7 +110,7 @@ if (config.conversionTracking.trackClicks) {
                 click_text : element?.value || '',
                 click_target : '',
                 click_url : element?.href || '',
-                page_location: pageDataInit?.href
+                page_location: initContextData?.location?.href,
             }
         }
         
@@ -121,12 +124,15 @@ if (config.conversionTracking.trackClicks) {
 /* *************** SEARCH *************** */
 if (config.conversionTracking.trackSearch) {
     analytics.subscribe('search_submitted', (event) => {
+
+        const eventContextData = event.context?.document;
+
         window.dataLayer.push({
             event: 'view_search_results',
-            page_location: event.context?.window?.location?.href,
-            page_title: event.context.document.title,
-            search_term: event.data.searchResult.query,
-            first_product: event.data.searchResult.productVariants[0]?.product.title
+            page_location: eventContextData?.location?.href,
+            page_title: eventContextData?.title,
+            search_term: event.data?.searchResult?.query,
+            first_product: event.data?.searchResult?.productVariants[0]?.product?.title
         });
     });  
 }
@@ -137,7 +143,7 @@ if (config.conversionTracking.trackFormSubmit) {
     analytics.subscribe('form_submitted', (event) => {
         window.dataLayer.push({
             event: 'form_submit',
-            page_location: pageDataInit?.href,
+            page_location: initContextData?.location?.href,
             form_action: event.data?.element?.action,
             form_id: event.data?.element?.id,
         });
