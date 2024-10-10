@@ -63,14 +63,8 @@ f.parentNode.insertBefore(j,f);
 /* *************** PAGE VIEW TRACKING *************** */
 if (config.conversionTracking.trackPageViews) {
     analytics.subscribe("page_viewed", (event) => {
-
-        const eventContextData = event.context?.document;
-
         window.dataLayer.push({
             'event': 'page_view',
-            'page_location': eventContextData?.location?.href,
-            'page_referrer': eventContextData?.referrer,
-            'page_title': eventContextData?.title,
         });
     });
 }
@@ -82,7 +76,6 @@ if (config.conversionTracking.trackClicks) {
         window.dataLayer.push({
             'event': 'custom_click_storefront',
             'data': event.customData,
-            'page_location': initContextData?.location?.href,
         });
     });
       
@@ -90,7 +83,6 @@ if (config.conversionTracking.trackClicks) {
         window.dataLayer.push({
             'event': 'custom_click_link_storefront',
             'data': event.customData,
-            'page_location': initContextData?.location?.href,
         });
     });
     /* *************** END OF CLICK TRACKING - storefront *************** */
@@ -110,7 +102,6 @@ if (config.conversionTracking.trackClicks) {
                 click_text : element?.value || '',
                 click_target : '',
                 click_url : element?.href || '',
-                page_location: initContextData?.location?.href,
             }
         }
         
@@ -129,8 +120,6 @@ if (config.conversionTracking.trackSearch) {
 
         window.dataLayer.push({
             event: 'view_search_results',
-            page_location: eventContextData?.location?.href,
-            page_title: eventContextData?.title,
             search_term: event.data?.searchResult?.query,
             first_product: event.data?.searchResult?.productVariants[0]?.product?.title
         });
@@ -143,7 +132,6 @@ if (config.conversionTracking.trackFormSubmit) {
     analytics.subscribe('form_submitted', (event) => {
         window.dataLayer.push({
             event: 'form_submit',
-            page_location: initContextData?.location?.href,
             form_action: event.data?.element?.action,
             form_id: event.data?.element?.id,
         });
@@ -184,7 +172,6 @@ if (config.conversionTracking.trackViewItemList) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "view_item_list",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 item_list_id: collection?.id,
                 item_list_name: collection?.title,
@@ -223,7 +210,6 @@ if (config.conversionTracking.trackViewItem) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "view_item",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 currency: productVariant?.price?.currencyCode,
                 value: productVariant?.price?.amount, 
@@ -263,7 +249,6 @@ if (config.conversionTracking.trackAddToCart) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "add_to_cart",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 currency: cartLine?.cost?.totalAmount?.currencyCode,
                 value: cartLine?.cost?.totalAmount?.amount, 
@@ -306,7 +291,6 @@ if (config.conversionTracking.trackViewCart) {
     // construct the data layer object:
     const dataLayerObj = {
         event: "view_cart",
-        page_location: event.context?.document?.location?.href,
         ecommerce: {
             currency: cart?.cost?.totalAmount?.currencyCode,
             value: cart?.cost?.totalAmount?.amount, 
@@ -346,7 +330,6 @@ if (config.conversionTracking.trackRemoveFromCart) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "remove_from_cart",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 currency: cartLine?.cost?.totalAmount?.currencyCode,
                 value: cartLine?.cost?.totalAmount?.amount, 
@@ -397,7 +380,6 @@ if (config.conversionTracking.trackBeginCheckout) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "begin_checkout",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: checkout?.subtotalPrice?.amount,
@@ -474,7 +456,6 @@ if (config.conversionTracking.trackAddShippingInfo) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "add_shipping_info",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
@@ -552,7 +533,6 @@ if (config.conversionTracking.trackAddPaymentInfo) {
         // construct the data layer object:
         const dataLayerObj = {
             event: "add_payment_info",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
@@ -633,7 +613,6 @@ if (config.conversionTracking.trackPurchase) {
         // Construct the data layer object
         const dataLayerObj = {
             event: "purchase",
-            page_location: event.context?.document?.location?.href,
             ecommerce: {
                 transaction_id: checkout?.order?.id,
                 currency: checkout?.currencyCode,
