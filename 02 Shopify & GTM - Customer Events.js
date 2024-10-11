@@ -62,9 +62,15 @@ f.parentNode.insertBefore(j,f);
 
 /* *************** PAGE VIEW TRACKING *************** */
 if (config.conversionTracking.trackPageViews) {
-    analytics.subscribe("page_viewed", (event) => {
+    analytics.subscribe('page_viewed', (event) => {
+
+        const eventContextData = event.context?.document;
+
         window.dataLayer.push({
-            'event': 'page_view',
+            event: 'page_view',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
         });
     });
 }
@@ -72,17 +78,29 @@ if (config.conversionTracking.trackPageViews) {
 
 if (config.conversionTracking.trackClicks) {
     /* *************** CLICK TRACKING - storefront *************** */
-    analytics.subscribe("custom_click", (event) => {
+    analytics.subscribe('custom_click', (event) => {
+
+        const eventContextData = event.context?.document;
+
         window.dataLayer.push({
-            'event': 'custom_click_storefront',
-            'data': event.customData,
+            event: 'custom_click_storefront',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
+            data: event.customData,
         });
     });
       
     analytics.subscribe("custom_link_click", (event) => {
+
+        const eventContextData = event.context?.document;
+
         window.dataLayer.push({
-            'event': 'custom_click_link_storefront',
-            'data': event.customData,
+            event: 'custom_click_link_storefront',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
+            data: event.customData,
         });
     });
     /* *************** END OF CLICK TRACKING - storefront *************** */
@@ -91,10 +109,14 @@ if (config.conversionTracking.trackClicks) {
     if (initContextData?.location?.href.includes('/checkouts/')) {
         analytics.subscribe('clicked', (event) => {
         const element = event.data?.element;
+        const eventContextData = event.context?.document;
         
         // construct the data layer object:
         const dataLayerObj = {
             event: "custom_click_checkout",
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title, 
             data: {
                 click_element : element?.type || '',
                 click_id : element?.id || '',
@@ -120,6 +142,9 @@ if (config.conversionTracking.trackSearch) {
 
         window.dataLayer.push({
             event: 'view_search_results',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             search_term: event.data?.searchResult?.query,
             first_product: event.data?.searchResult?.productVariants[0]?.product?.title
         });
@@ -130,8 +155,14 @@ if (config.conversionTracking.trackSearch) {
 /* *************** FORM SUBMIT *************** */
 if (config.conversionTracking.trackFormSubmit) {
     analytics.subscribe('form_submitted', (event) => {
+
+        const eventContextData = event.context?.document;
+
         window.dataLayer.push({
             event: 'form_submit',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             form_action: event.data?.element?.action,
             form_id: event.data?.element?.id,
         });
@@ -146,8 +177,9 @@ if (config.conversionTracking.trackFormSubmit) {
 
 /* *************** VIEW ITEM LIST *************** */
 if (config.conversionTracking.trackViewItemList) {
-    analytics.subscribe("collection_viewed", (event) => { 
+    analytics.subscribe('collection_viewed', (event) => { 
     
+        const eventContextData = event.context?.document;
         const collection = event.data?.collection;
         var googleAnalyticsProducts = [];
     
@@ -171,7 +203,10 @@ if (config.conversionTracking.trackViewItemList) {
     
         // construct the data layer object:
         const dataLayerObj = {
-            event: "view_item_list",
+            event: 'view_item_list',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 item_list_id: collection?.id,
                 item_list_name: collection?.title,
@@ -188,8 +223,9 @@ if (config.conversionTracking.trackViewItemList) {
 
 /* *************** VIEW ITEM *************** */
 if (config.conversionTracking.trackViewItem) {
-    analytics.subscribe("product_viewed", (event) => { 
+    analytics.subscribe('product_viewed', (event) => { 
     
+        const eventContextData = event.context?.document;
         const productVariant = event.data?.productVariant;
         var googleAnalyticsProducts = [];
 
@@ -198,7 +234,6 @@ if (config.conversionTracking.trackViewItem) {
             item_id: productVariant?.product?.id,
             item_name: productVariant?.product?.title,
             affiliation: config.store.affiliationName,
-            index: 0,
             item_brand: productVariant?.product?.vendor,
             item_category: productVariant?.product?.type,
             item_variant: productVariant?.title,
@@ -209,7 +244,10 @@ if (config.conversionTracking.trackViewItem) {
         
         // construct the data layer object:
         const dataLayerObj = {
-            event: "view_item",
+            event: 'view_item',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 currency: productVariant?.price?.currencyCode,
                 value: productVariant?.price?.amount, 
@@ -229,6 +267,7 @@ if (config.conversionTracking.trackViewItem) {
 if (config.conversionTracking.trackAddToCart) {
     analytics.subscribe('product_added_to_cart', (event) => {
         
+        const eventContextData = event.context?.document;
         const cartLine = event.data?.cartLine;
         var googleAnalyticsProducts = [];
 
@@ -237,7 +276,6 @@ if (config.conversionTracking.trackAddToCart) {
             item_id: cartLine?.merchandise?.product?.id,
             item_name: cartLine?.merchandise?.product?.title,
             affiliation: config.store.affiliationName,
-            index: 0,
             item_brand: cartLine?.merchandise?.product?.vendor,
             item_category: cartLine?.merchandise?.product?.type,
             item_variant: cartLine?.merchandise?.title,
@@ -248,7 +286,10 @@ if (config.conversionTracking.trackAddToCart) {
     
         // construct the data layer object:
         const dataLayerObj = {
-            event: "add_to_cart",
+            event: 'add_to_cart',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 currency: cartLine?.cost?.totalAmount?.currencyCode,
                 value: cartLine?.cost?.totalAmount?.amount, 
@@ -268,40 +309,44 @@ if (config.conversionTracking.trackAddToCart) {
 if (config.conversionTracking.trackViewCart) {
     analytics.subscribe('cart_viewed', (event) => {
 
-    const cart = event.data?.cart;
-    var googleAnalyticsProducts = [];
+        const eventContextData = event.context?.document;
+        const cart = event.data?.cart;
+        var googleAnalyticsProducts = [];
 
-    // loop through the products:
-    cart?.lines?.forEach(function(item, index) {
-        // GA4
-        var lineItem = {
-            item_id: item.merchandise?.product?.id,
-            item_name: item.merchandise?.product?.title,
-            affiliation: config.store.affiliationName,
-            index: index,
-            item_brand: item.merchandise?.product?.vendor,
-            item_category: item.merchandise?.product?.type,
-            item_variant: item.merchandise?.title,
-            price: item.merchandise?.price?.amount,
-            quantity: item.quantity
-        };
-        googleAnalyticsProducts.push(lineItem);
-    });
-    
-    // construct the data layer object:
-    const dataLayerObj = {
-        event: "view_cart",
-        ecommerce: {
-            currency: cart?.cost?.totalAmount?.currencyCode,
-            value: cart?.cost?.totalAmount?.amount, 
-            items: googleAnalyticsProducts
-        }
-    }   
+        // loop through the products:
+        cart?.lines?.forEach(function(item, index) {
+            // GA4
+            var lineItem = {
+                item_id: item.merchandise?.product?.id,
+                item_name: item.merchandise?.product?.title,
+                affiliation: config.store.affiliationName,
+                index: index,
+                item_brand: item.merchandise?.product?.vendor,
+                item_category: item.merchandise?.product?.type,
+                item_variant: item.merchandise?.title,
+                price: item.merchandise?.price?.amount,
+                quantity: item.quantity
+            };
+            googleAnalyticsProducts.push(lineItem);
+        });
+        
+        // construct the data layer object:
+        const dataLayerObj = {
+            event: 'view_cart',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
+            ecommerce: {
+                currency: cart?.cost?.totalAmount?.currencyCode,
+                value: cart?.cost?.totalAmount?.amount, 
+                items: googleAnalyticsProducts
+            }
+        }   
 
-    // push the content to the dataLayer:
-    window.dataLayer.push({ 'ecommerce': null });
-    window.dataLayer.push(dataLayerObj);
-    });
+        // push the content to the dataLayer:
+        window.dataLayer.push({ 'ecommerce': null });
+        window.dataLayer.push(dataLayerObj);
+        });
 }
 /* *************** END OF VIEW CART *************** */
 
@@ -310,6 +355,7 @@ if (config.conversionTracking.trackViewCart) {
 if (config.conversionTracking.trackRemoveFromCart) {
     analytics.subscribe('product_removed_from_cart', (event) => {
     
+        const eventContextData = event.context?.document;
         const cartLine = event.data?.cartLine;
         var googleAnalyticsProducts = [];
 
@@ -318,7 +364,6 @@ if (config.conversionTracking.trackRemoveFromCart) {
             item_id: cartLine?.merchandise?.product?.id,
             item_name: cartLine?.merchandise?.product?.title,
             affiliation: config.store.affiliationName,
-            index: 0,
             item_brand: cartLine?.merchandise?.product?.vendor,
             item_category: cartLine?.merchandise?.product?.type,
             item_variant: cartLine?.merchandise?.title,
@@ -329,7 +374,10 @@ if (config.conversionTracking.trackRemoveFromCart) {
         
         // construct the data layer object:
         const dataLayerObj = {
-            event: "remove_from_cart",
+            event: 'remove_from_cart',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 currency: cartLine?.cost?.totalAmount?.currencyCode,
                 value: cartLine?.cost?.totalAmount?.amount, 
@@ -347,8 +395,9 @@ if (config.conversionTracking.trackRemoveFromCart) {
 
 /* *************** BEGIN CHECKOUT *************** */
 if (config.conversionTracking.trackBeginCheckout) {
-    analytics.subscribe("checkout_started", (event) => {
+    analytics.subscribe('checkout_started', (event) => {
 
+        const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         var googleAnalyticsProducts = [];
 
@@ -379,7 +428,10 @@ if (config.conversionTracking.trackBeginCheckout) {
 
         // construct the data layer object:
         const dataLayerObj = {
-            event: "begin_checkout",
+            event: 'begin_checkout',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: checkout?.subtotalPrice?.amount,
@@ -398,8 +450,9 @@ if (config.conversionTracking.trackBeginCheckout) {
 
 /* *************** ADD SHIPPING INFO *************** */
 if (config.conversionTracking.trackAddShippingInfo) {
-    analytics.subscribe("checkout_shipping_info_submitted", (event) => {
+    analytics.subscribe('checkout_shipping_info_submitted', (event) => {
 
+        const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         var googleAnalyticsProducts = [];
 
@@ -455,7 +508,10 @@ if (config.conversionTracking.trackAddShippingInfo) {
 
         // construct the data layer object:
         const dataLayerObj = {
-            event: "add_shipping_info",
+            event: 'add_shipping_info',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
@@ -475,8 +531,9 @@ if (config.conversionTracking.trackAddShippingInfo) {
 
 /* *************** ADD PAYMENT INFO *************** */
 if (config.conversionTracking.trackAddPaymentInfo) {
-    analytics.subscribe("payment_info_submitted", (event) => {
+    analytics.subscribe('payment_info_submitted', (event) => {
 
+        const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         var googleAnalyticsProducts = [];
 
@@ -532,7 +589,10 @@ if (config.conversionTracking.trackAddPaymentInfo) {
 
         // construct the data layer object:
         const dataLayerObj = {
-            event: "add_payment_info",
+            event: 'add_payment_info',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
@@ -552,8 +612,9 @@ if (config.conversionTracking.trackAddPaymentInfo) {
 
 /* *************** PURCHASE *************** */
 if (config.conversionTracking.trackPurchase) {
-    analytics.subscribe("checkout_completed", (event) => {
+    analytics.subscribe('checkout_completed', (event) => {
 
+        const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         var googleAnalyticsProducts = [];
 
@@ -612,7 +673,10 @@ if (config.conversionTracking.trackPurchase) {
 
         // Construct the data layer object
         const dataLayerObj = {
-            event: "purchase",
+            event: 'purchase',
+            page_location: eventContextData?.location?.href,
+            page_referrer: eventContextData?.referrer,
+            page_title: eventContextData?.title,
             ecommerce: {
                 transaction_id: checkout?.order?.id,
                 currency: checkout?.currencyCode,
@@ -632,4 +696,3 @@ if (config.conversionTracking.trackPurchase) {
     });
 }
 /* *************** END OF PURCHASE *************** */
-
