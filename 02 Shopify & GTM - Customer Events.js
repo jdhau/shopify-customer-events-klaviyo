@@ -24,7 +24,7 @@ const config = {
 
     /* *************** STORE SETTINGS *************** */
     store: {
-        affiliationName: 'XXXXXX', // replace with e.g. your store name
+        affiliationName: init.data.shop.name, // or you can replace it with some other value
     },  
 
 }
