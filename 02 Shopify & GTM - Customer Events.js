@@ -401,32 +401,57 @@ if (config.conversionTracking.trackBeginCheckout) {
         const checkout = event.data?.checkout;
         var googleAnalyticsProducts = [];
 
-        // discount:
-        const allDiscountCodes = checkout?.discountApplications?.map((discount) => {
-            if (discount.type === 'DISCOUNT_CODE') {
-                return discount.title;
-            }
-        });
+        /* *************** START DISCOUNT CALCULATIONS *************** */
+        let orderCoupon = []; // to hold the discount titles
+        let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
+        let totalOrderValue = checkout.totalPrice?.amount || 0;
 
-        // loop through the products:
-        checkout?.lineItems?.forEach(function(item, index) {
+        // Handle item-specific discounts
+        checkout?.lineItems?.forEach((item, index) => {
+            let itemDiscountAmount = 0;
+
+            // Process discounts for this item
+            item.discountAllocations?.forEach((allocation, allocationIndex) => {
+                const discount = allocation.discountApplication;
+
+                // Capture the discount title if not already added
+                if (discount.title && !orderCoupon.includes(discount.title)) {
+                    orderCoupon.push(discount.title);
+                }
+
+                // Accumulate discount amount for the item
+                const allocationAmount = allocation.amount.amount;
+                itemDiscountAmount += allocationAmount;
+            });
+
+            // GA4: Calculate price after discount
+            const itemPrice = item.variant.price.amount;
+            const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
+
+        /* *************** END DISCOUNT CALCULATIONS *************** */
+          
             // GA4
             var lineItem = {
                 item_id: item.variant?.product?.id,
                 item_name: item.variant?.product?.title,
                 affiliation: config.store.affiliationName,
-                coupon: allDiscountCodes || '',
+                coupon: orderCoupon.join(',') || undefined,
+                discount: itemDiscountAmount / item.quantity,
                 index: index,
                 item_brand: item.variant?.product?.vendor,
                 item_category: item.variant?.product?.type,
                 item_variant: item.variant?.title,
-                price: item.variant?.price?.amount,
+                price: priceAfterDiscount,
                 quantity: item.quantity
             };
             googleAnalyticsProducts.push(lineItem); 
+
         });
 
-        // construct the data layer object:
+        // Join the discount codes for the orderCoupon
+        var orderCouponString = orderCoupon.join(',');
+
+        // Construct the data layer object:
         const dataLayerObj = {
             event: 'begin_checkout',
             page_location: eventContextData?.location?.href,
@@ -434,13 +459,14 @@ if (config.conversionTracking.trackBeginCheckout) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: checkout?.subtotalPrice?.amount,
-                coupon: allDiscountCodes || '',
+                value: (totalOrderValue || 0).toFixed(2),
+                coupon: orderCouponString || undefined, 
+                discount: (orderDiscountAmount || 0).toFixed(2),
                 items: googleAnalyticsProducts
             }
         }
 
-        // push the content to the dataLayer:
+        // Push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
     });
@@ -490,7 +516,7 @@ if (config.conversionTracking.trackAddShippingInfo) {
                 item_id: item.variant?.product?.id,
                 item_name: item.variant?.product?.title,
                 affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(','),
+                coupon: orderCoupon.join(',') || undefined,
                 discount: itemDiscountAmount / item.quantity, 
                 index: index,
                 item_brand: item.variant?.product?.vendor,
@@ -515,7 +541,7 @@ if (config.conversionTracking.trackAddShippingInfo) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
-                coupon: orderCouponString,
+                coupon: orderCouponString || undefined,
                 discount: (orderDiscountAmount || 0).toFixed(2),
                 items: googleAnalyticsProducts
             }
@@ -571,7 +597,7 @@ if (config.conversionTracking.trackAddPaymentInfo) {
                 item_id: item.variant?.product?.id,
                 item_name: item.variant?.product?.title,
                 affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(','),
+                coupon: orderCoupon.join(',') || undefined,
                 discount: itemDiscountAmount / item.quantity,
                 index: index,
                 item_brand: item.variant?.product?.vendor,
@@ -596,7 +622,7 @@ if (config.conversionTracking.trackAddPaymentInfo) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
-                coupon: orderCouponString,
+                coupon: orderCouponString || undefined,
                 discount: (orderDiscountAmount || 0).toFixed(2),
                 items: googleAnalyticsProducts
             }
@@ -652,7 +678,7 @@ if (config.conversionTracking.trackPurchase) {
                 item_id: item.variant?.product?.id,
                 item_name: item.variant?.product?.title,
                 affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(','),
+                coupon: orderCoupon.join(',') || undefined,
                 discount: itemDiscountAmount / item.quantity,
                 index: index,
                 item_brand: item.variant?.product?.vendor,
@@ -683,7 +709,7 @@ if (config.conversionTracking.trackPurchase) {
                 value: (totalOrderValue || 0).toFixed(2),
                 tax: (checkout?.totalTax?.amount || 0).toFixed(2),
                 shipping: (checkout?.shippingLine?.price?.amount || 0).toFixed(2),
-                coupon: orderCouponString,
+                coupon: orderCouponString || undefined,
                 discount: (orderDiscountAmount || 0).toFixed(2),
                 payment_type: paymentType,
                 items: googleAnalyticsProducts
