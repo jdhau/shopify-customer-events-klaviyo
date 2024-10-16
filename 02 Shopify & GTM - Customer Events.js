@@ -703,6 +703,8 @@ if (config.conversionTracking.trackPurchase) {
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
+            user_email : checkout?.email,
+            user_data : checkout?.shippingAddress,
             ecommerce: {
                 transaction_id: checkout?.order?.id,
                 currency: checkout?.currencyCode,
