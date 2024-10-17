@@ -455,8 +455,7 @@ if (config.conversionTracking.trackBeginCheckout) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = checkout.totalPrice?.amount || 0;
-
+        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
 
         // Construct the data layer object:
         const dataLayerObj = {
@@ -466,9 +465,9 @@ if (config.conversionTracking.trackBeginCheckout) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: (totalOrderValue || 0).toFixed(2),
+                value: totalOrderValue.toFixed(2),
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined, 
-                discount: (orderDiscountAmount || 0).toFixed(2),
+                discount: orderDiscountAmount.toFixed(2),
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
@@ -488,7 +487,7 @@ if (config.conversionTracking.trackAddShippingInfo) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = checkout.totalPrice?.amount || 0;
+        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
 
         // construct the data layer object:
         const dataLayerObj = {
@@ -498,9 +497,10 @@ if (config.conversionTracking.trackAddShippingInfo) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: (totalOrderValue || 0).toFixed(2),
+                value: totalOrderValue.toFixed(2),
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
-                discount: (orderDiscountAmount || 0).toFixed(2),
+                discount: orderDiscountAmount.toFixed(2),
+                shipping_tier: checkout.delivery?.selectedDeliveryOptions?.[0]?.title || undefined,
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
@@ -520,7 +520,7 @@ if (config.conversionTracking.trackAddPaymentInfo) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = checkout.totalPrice?.amount || 0;
+        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
 
         // construct the data layer object:
         const dataLayerObj = {
@@ -530,9 +530,9 @@ if (config.conversionTracking.trackAddPaymentInfo) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: (totalOrderValue || 0).toFixed(2),
+                value: totalOrderValue.toFixed(2),
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
-                discount: (orderDiscountAmount || 0).toFixed(2),
+                discount: orderDiscountAmount.toFixed(2),
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
@@ -552,7 +552,7 @@ if (config.conversionTracking.trackPurchase) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = checkout.totalPrice?.amount || 0;
+        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
 
         // Determine the payment type
         const paymentType = checkout?.transactions?.[0]?.gateway || 'no payment type';
@@ -568,11 +568,11 @@ if (config.conversionTracking.trackPurchase) {
             ecommerce: {
                 transaction_id: checkout?.order?.id,
                 currency: checkout?.currencyCode,
-                value: (totalOrderValue || 0).toFixed(2),
+                value: totalOrderValue.toFixed(2),
                 tax: (checkout?.totalTax?.amount || 0).toFixed(2),
                 shipping: (checkout?.shippingLine?.price?.amount || 0).toFixed(2),
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
-                discount: (orderDiscountAmount || 0).toFixed(2),
+                discount: orderDiscountAmount.toFixed(2),
                 payment_type: paymentType,
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
