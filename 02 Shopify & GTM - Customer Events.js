@@ -392,6 +392,61 @@ if (config.conversionTracking.trackRemoveFromCart) {
 }
 /* *************** END OF REMOVE FROM CART *************** */
 
+/* *************** HELPER FUNCTION TO PROCESS CHECKOUT PRODUCTS *************** */
+
+const processCheckoutProducts = (items) => {
+    let finalProductArray = [];
+    let orderCoupon = []; // to hold the discount titles
+  
+    if (items) {
+      items.forEach((item, index) => {
+        let itemDiscountAmount = 0;
+  
+        // Process discounts for this item
+        item.discountAllocations?.forEach((allocation) => {
+          const discount = allocation.discountApplication;
+  
+          // Capture the discount title if not already added
+          if (discount.title && !orderCoupon.includes(discount.title)) {
+            orderCoupon.push(discount.title);
+          }
+  
+          // Accumulate discount amount for the item
+          const allocationAmount = allocation.amount.amount;
+          itemDiscountAmount += allocationAmount;
+        });
+  
+        // GA4: Calculate price after discount
+        const itemPrice = item.variant.price.amount;
+        const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
+  
+        // GA4
+        let lineItem = {
+          item_id: item.variant?.product?.id,
+          item_name: item.variant?.product?.title,
+          affiliation: config.store.affiliationName,
+          coupon: orderCoupon.join(',') || undefined,
+          discount: itemDiscountAmount / item.quantity,
+          index: index,
+          item_brand: item.variant?.product?.vendor,
+          item_category: item.variant?.product?.type,
+          item_variant: item.variant?.title,
+          price: priceAfterDiscount,
+          quantity: item.quantity
+        };
+  
+        finalProductArray.push(lineItem);
+      });
+    }
+  
+    return {
+      items: finalProductArray,
+      orderCouponString: orderCoupon.join(',')
+    };
+  };
+
+/* *************** END OF HELPER FUNCTION TO PROCESS CHECKOUT PRODUCTS *************** */
+
 
 /* *************** BEGIN CHECKOUT *************** */
 if (config.conversionTracking.trackBeginCheckout) {
@@ -399,57 +454,9 @@ if (config.conversionTracking.trackBeginCheckout) {
 
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
-        var googleAnalyticsProducts = [];
-
-        /* *************** START DISCOUNT CALCULATIONS *************** */
-        let orderCoupon = []; // to hold the discount titles
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
         let totalOrderValue = checkout.totalPrice?.amount || 0;
 
-        // Handle item-specific discounts
-        checkout?.lineItems?.forEach((item, index) => {
-            let itemDiscountAmount = 0;
-
-            // Process discounts for this item
-            item.discountAllocations?.forEach((allocation, allocationIndex) => {
-                const discount = allocation.discountApplication;
-
-                // Capture the discount title if not already added
-                if (discount.title && !orderCoupon.includes(discount.title)) {
-                    orderCoupon.push(discount.title);
-                }
-
-                // Accumulate discount amount for the item
-                const allocationAmount = allocation.amount.amount;
-                itemDiscountAmount += allocationAmount;
-            });
-
-            // GA4: Calculate price after discount
-            const itemPrice = item.variant.price.amount;
-            const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
-
-        /* *************** END DISCOUNT CALCULATIONS *************** */
-          
-            // GA4
-            var lineItem = {
-                item_id: item.variant?.product?.id,
-                item_name: item.variant?.product?.title,
-                affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(',') || undefined,
-                discount: itemDiscountAmount / item.quantity,
-                index: index,
-                item_brand: item.variant?.product?.vendor,
-                item_category: item.variant?.product?.type,
-                item_variant: item.variant?.title,
-                price: priceAfterDiscount,
-                quantity: item.quantity
-            };
-            googleAnalyticsProducts.push(lineItem); 
-
-        });
-
-        // Join the discount codes for the orderCoupon
-        var orderCouponString = orderCoupon.join(',');
 
         // Construct the data layer object:
         const dataLayerObj = {
@@ -460,9 +467,9 @@ if (config.conversionTracking.trackBeginCheckout) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
-                coupon: orderCouponString || undefined, 
+                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined, 
                 discount: (orderDiscountAmount || 0).toFixed(2),
-                items: googleAnalyticsProducts
+                items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
 
@@ -480,57 +487,8 @@ if (config.conversionTracking.trackAddShippingInfo) {
 
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
-        var googleAnalyticsProducts = [];
-
-        /* *************** START DISCOUNT CALCULATIONS *************** */
-        let orderCoupon = []; // to hold the discount titles
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
         let totalOrderValue = checkout.totalPrice?.amount || 0;
-
-        // Handle item-specific discounts
-        checkout?.lineItems?.forEach((item, index) => {
-            let itemDiscountAmount = 0;
-
-            // Process discounts for this item
-            item.discountAllocations?.forEach((allocation, allocationIndex) => {
-                const discount = allocation.discountApplication;
-
-                // Capture the discount title if not already added
-                if (discount.title && !orderCoupon.includes(discount.title)) {
-                    orderCoupon.push(discount.title);
-                }
-
-                // Accumulate discount amount for the item
-                const allocationAmount = allocation.amount.amount;
-                itemDiscountAmount += allocationAmount;
-            });
-
-            // GA4: Calculate price after discount
-            const itemPrice = item.variant.price.amount;
-            const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
-
-        /* *************** END DISCOUNT CALCULATIONS *************** */
-          
-            // GA4
-            var lineItem = {
-                item_id: item.variant?.product?.id,
-                item_name: item.variant?.product?.title,
-                affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(',') || undefined,
-                discount: itemDiscountAmount / item.quantity, 
-                index: index,
-                item_brand: item.variant?.product?.vendor,
-                item_category: item.variant?.product?.type,
-                item_variant: item.variant?.title,
-                price: priceAfterDiscount,
-                quantity: item.quantity
-            };
-            googleAnalyticsProducts.push(lineItem); 
-
-        });
-
-        // Join the discount codes for the orderCoupon
-        var orderCouponString = orderCoupon.join(',');
 
         // construct the data layer object:
         const dataLayerObj = {
@@ -541,9 +499,9 @@ if (config.conversionTracking.trackAddShippingInfo) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
-                coupon: orderCouponString || undefined,
+                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
                 discount: (orderDiscountAmount || 0).toFixed(2),
-                items: googleAnalyticsProducts
+                items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
 
@@ -561,57 +519,8 @@ if (config.conversionTracking.trackAddPaymentInfo) {
 
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
-        var googleAnalyticsProducts = [];
-
-        /* *************** START DISCOUNT CALCULATIONS *************** */
-        let orderCoupon = []; // to hold the discount titles
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
         let totalOrderValue = checkout.totalPrice?.amount || 0;
-
-        // Handle item-specific discounts
-        checkout?.lineItems?.forEach((item, index) => {
-            let itemDiscountAmount = 0;
-
-            // Process discounts for this item
-            item.discountAllocations?.forEach((allocation, allocationIndex) => {
-                const discount = allocation.discountApplication;
-
-                // Capture the discount title if not already added
-                if (discount.title && !orderCoupon.includes(discount.title)) {
-                    orderCoupon.push(discount.title);
-                }
-
-                // Accumulate discount amount for the item
-                const allocationAmount = allocation.amount.amount;
-                itemDiscountAmount += allocationAmount;
-            });
-
-            // GA4: Calculate price after discount
-            const itemPrice = item.variant.price.amount;
-            const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
-
-        /* *************** END DISCOUNT CALCULATIONS *************** */
-          
-            // GA4
-            var lineItem = {
-                item_id: item.variant?.product?.id,
-                item_name: item.variant?.product?.title,
-                affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(',') || undefined,
-                discount: itemDiscountAmount / item.quantity,
-                index: index,
-                item_brand: item.variant?.product?.vendor,
-                item_category: item.variant?.product?.type,
-                item_variant: item.variant?.title,
-                price: priceAfterDiscount,
-                quantity: item.quantity
-            };
-            googleAnalyticsProducts.push(lineItem); 
-
-        });
-
-        // Join the discount codes for the orderCoupon
-        var orderCouponString = orderCoupon.join(',');   
 
         // construct the data layer object:
         const dataLayerObj = {
@@ -622,9 +531,9 @@ if (config.conversionTracking.trackAddPaymentInfo) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: (totalOrderValue || 0).toFixed(2),
-                coupon: orderCouponString || undefined,
+                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
                 discount: (orderDiscountAmount || 0).toFixed(2),
-                items: googleAnalyticsProducts
+                items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
 
@@ -642,57 +551,8 @@ if (config.conversionTracking.trackPurchase) {
 
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
-        var googleAnalyticsProducts = [];
-
-        /* *************** START DISCOUNT CALCULATIONS *************** */
-        let orderCoupon = []; // to hold the discount titles
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
         let totalOrderValue = checkout.totalPrice?.amount || 0;
-
-        // Handle item-specific discounts
-        checkout?.lineItems?.forEach((item, index) => {
-            let itemDiscountAmount = 0;
-
-            // Process discounts for this item
-            item.discountAllocations?.forEach((allocation, allocationIndex) => {
-                const discount = allocation.discountApplication;
-
-                // Capture the discount title if not already added
-                if (discount.title && !orderCoupon.includes(discount.title)) {
-                    orderCoupon.push(discount.title);
-                }
-
-                // Accumulate discount amount for the item
-                const allocationAmount = allocation.amount.amount;
-                itemDiscountAmount += allocationAmount;
-            });
-
-            // GA4: Calculate price after discount
-            const itemPrice = item.variant.price.amount;
-            const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
-
-      /* *************** END DISCOUNT CALCULATIONS *************** */
-          
-            // GA4
-            var lineItem = {
-                item_id: item.variant?.product?.id,
-                item_name: item.variant?.product?.title,
-                affiliation: config.store.affiliationName,
-                coupon: orderCoupon.join(',') || undefined,
-                discount: itemDiscountAmount / item.quantity,
-                index: index,
-                item_brand: item.variant?.product?.vendor,
-                item_category: item.variant?.product?.type,
-                item_variant: item.variant?.title,
-                price: priceAfterDiscount,
-                quantity: item.quantity
-            };
-            googleAnalyticsProducts.push(lineItem); 
-
-        });
-
-        // Join the discount codes for the orderCoupon
-        var orderCouponString = orderCoupon.join(',');
 
         // Determine the payment type
         const paymentType = checkout?.transactions?.[0]?.gateway || 'no payment type';
@@ -711,10 +571,10 @@ if (config.conversionTracking.trackPurchase) {
                 value: (totalOrderValue || 0).toFixed(2),
                 tax: (checkout?.totalTax?.amount || 0).toFixed(2),
                 shipping: (checkout?.shippingLine?.price?.amount || 0).toFixed(2),
-                coupon: orderCouponString || undefined,
+                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
                 discount: (orderDiscountAmount || 0).toFixed(2),
                 payment_type: paymentType,
-                items: googleAnalyticsProducts
+                items: processCheckoutProducts(checkout?.lineItems).items
             }
         };
 
