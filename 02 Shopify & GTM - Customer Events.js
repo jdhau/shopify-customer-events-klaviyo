@@ -157,15 +157,21 @@ if (config.conversionTracking.trackFormSubmit) {
     analytics.subscribe('form_submitted', (event) => {
 
         const eventContextData = event.context?.document;
+        
+        // decode the form action URL before checking for '/cart/add'
+        const decodedAction = decodeURIComponent(event.data?.element?.action || '');
 
-        window.dataLayer.push({
-            event: 'form_submit',
-            page_location: eventContextData?.location?.href,
-            page_referrer: eventContextData?.referrer,
-            page_title: eventContextData?.title,
-            form_action: event.data?.element?.action,
-            form_id: event.data?.element?.id,
-        });
+        // only fire form_submit if the form_action does NOT contain '/cart/add'
+        if (!decodedAction.includes('/cart/add')) {
+            window.dataLayer.push({
+                event: 'form_submit',
+                page_location: eventContextData?.location?.href,
+                page_referrer: eventContextData?.referrer,
+                page_title: eventContextData?.title,
+                form_action: event.data?.element?.action,
+                form_id: event.data?.element?.id,
+            });
+        }
     });  
 }
 /* *************** END OF FORM SUBMIT *************** */
