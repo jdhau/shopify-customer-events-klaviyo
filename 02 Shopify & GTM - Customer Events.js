@@ -577,6 +577,7 @@ if (config.conversionTracking.trackPurchase) {
                 value: totalOrderValue.toFixed(2),
                 tax: (checkout?.totalTax?.amount || 0).toFixed(2),
                 shipping: (checkout?.shippingLine?.price?.amount || 0).toFixed(2),
+                shipping_tier: checkout.delivery?.selectedDeliveryOptions?.[0]?.title || undefined, 
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
                 discount: orderDiscountAmount.toFixed(2),
                 payment_type: paymentType,
