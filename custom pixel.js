@@ -1,3 +1,5 @@
+/* paste the contents of this script into a new Custom Pixel inside Customer Events */
+
 /* *********************************************************************************
 ****************************** GLOBAL SETTINGS *************************************
 make sure to go through the settings below and change the values where applicable
