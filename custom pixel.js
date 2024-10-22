@@ -93,7 +93,7 @@ if (config.conversionTracking.trackClicks) {
         });
     });
       
-    analytics.subscribe("custom_link_click", (event) => {
+    analytics.subscribe('custom_link_click', (event) => {
 
         const eventContextData = event.context?.document;
 
@@ -115,7 +115,7 @@ if (config.conversionTracking.trackClicks) {
         
         // construct the data layer object:
         const dataLayerObj = {
-            event: "custom_click_checkout",
+            event: 'custom_click_checkout',
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title, 
