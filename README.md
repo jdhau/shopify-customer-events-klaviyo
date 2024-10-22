@@ -20,6 +20,7 @@ Paste the contents of the '03 Shopify & GTM - Customer Events.js' file into the 
 Review the global settings in the beginning of the file, and be sure to insert your GTM container ID, and adjust any other settings as needed.
 
 Events that can be tracked:
+
 pageView
 
 click
