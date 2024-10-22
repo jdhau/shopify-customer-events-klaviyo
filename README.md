@@ -18,3 +18,18 @@ Navigate to your store's Settings -> Customer Events -> Add custom pixel.
 Name the pixel (e.g. 'GTM').
 Paste the contents of the '03 Shopify & GTM - Customer Events.js' file into the newly created custom pixel.
 Review the global settings in the beginning of the file, and be sure to insert your GTM container ID, and adjust any other settings as needed.
+
+Events that can be tracked:
+pageView
+click
+search
+formSubmit
+viewItemList
+viewItem
+addToCart
+viewCart
+removeFromCart
+beginCheckout
+addShippingInfo
+addPaymentInfo
+purchase
