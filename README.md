@@ -21,15 +21,27 @@ Review the global settings in the beginning of the file, and be sure to insert y
 
 Events that can be tracked:
 pageView
+
 click
+
 search
+
 formSubmit
+
 viewItemList
+
 viewItem
+
 addToCart
+
 viewCart
+
 removeFromCart
+
 beginCheckout
+
 addShippingInfo
+
 addPaymentInfo
+
 purchase
