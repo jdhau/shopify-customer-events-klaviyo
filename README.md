@@ -2,6 +2,7 @@ This is a Shopify Customer Events tracking project for both non-ecommerce and ec
 It pushes events' data into the data layer, from where it can be retrieved using a tag manager system (e.g. Google Tag Manager) and sent to different vendors like Google Analytics, Google Ads, and others.
 
 How to use:
+
 1. 
 Navigate to Online Store -> Themes -> Edit Code. 
 Open the theme.liquid file. 
