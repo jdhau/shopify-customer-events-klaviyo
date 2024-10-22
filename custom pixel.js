@@ -473,9 +473,9 @@ if (config.conversionTracking.trackBeginCheckout) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: totalOrderValue.toFixed(2),
+                value: totalOrderValue,
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined, 
-                discount: orderDiscountAmount.toFixed(2),
+                discount: orderDiscountAmount,
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
@@ -505,9 +505,9 @@ if (config.conversionTracking.trackAddShippingInfo) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: totalOrderValue.toFixed(2),
+                value: totalOrderValue,
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
-                discount: orderDiscountAmount.toFixed(2),
+                discount: orderDiscountAmount,
                 shipping_tier: checkout.delivery?.selectedDeliveryOptions?.[0]?.title || undefined,
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
@@ -538,9 +538,9 @@ if (config.conversionTracking.trackAddPaymentInfo) {
             page_title: eventContextData?.title,
             ecommerce: {
                 currency: checkout?.currencyCode,
-                value: totalOrderValue.toFixed(2),
+                value: totalOrderValue,
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
-                discount: orderDiscountAmount.toFixed(2),
+                discount: orderDiscountAmount,
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
         }
@@ -571,17 +571,17 @@ if (config.conversionTracking.trackPurchase) {
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
-            user_email : checkout?.email,
-            user_data : checkout?.shippingAddress,
+            user_email: checkout?.email,
+            user_data: checkout?.shippingAddress,
             ecommerce: {
                 transaction_id: checkout?.order?.id,
                 currency: checkout?.currencyCode,
-                value: totalOrderValue.toFixed(2),
-                tax: (checkout?.totalTax?.amount || 0).toFixed(2),
-                shipping: (checkout?.shippingLine?.price?.amount || 0).toFixed(2),
+                value: totalOrderValue,
+                tax: checkout?.totalTax?.amount || 0,
+                shipping: checkout?.shippingLine?.price?.amount || 0,
                 shipping_tier: checkout.delivery?.selectedDeliveryOptions?.[0]?.title || undefined, 
                 coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
-                discount: orderDiscountAmount.toFixed(2),
+                discount: orderDiscountAmount,
                 payment_type: paymentType,
                 items: processCheckoutProducts(checkout?.lineItems).items
             }
