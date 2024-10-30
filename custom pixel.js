@@ -148,7 +148,6 @@ if (config.conversionTracking.trackSearch) {
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
             search_term: event.data?.searchResult?.query,
-            first_product: event.data?.searchResult?.productVariants[0]?.product?.title
         });
     });  
 }
