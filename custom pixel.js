@@ -1,4 +1,20 @@
-/* paste the contents of this script into a new Custom Pixel inside Customer Events */
+/*
+ * Project: Shopify Customer Events Tracking with GTM (plain events)
+ * Authors: Karol Krajcir (https://www.karolkrajcir.com) and Julius Fedorovicius (https://www.analyticsmania.com)
+ * How to use: https://github.com/karolk95/shopify-customer-events-plain/blob/main/README.md
+ * License: GNU General Public License (GPL) (with restrictions) - more here: https://github.com/karolk95/shopify-customer-events-plain/blob/main/LICENSE
+ *
+ * Restriction: This code may not be incorporated into commercial software products
+ * or applications that are sold or generate revenue without express permission from the author.
+ *
+ * Disclaimer: THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+ * OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 
 /* *********************************************************************************
 ****************************** GLOBAL SETTINGS *************************************
