@@ -45,6 +45,11 @@ const config = {
         affiliationName: init.data.shop.name, // or you can replace it with some other value
     },  
 
+    /* *************** DEVELOPER SETTINGS *************** */
+    developer: {
+        consoleLogging: false, // set to true if you want to see the console logs
+    },
+
 }
 /* *********************************************************************************
 ****************************** END OF GLOBAL SETTINGS ******************************
@@ -60,6 +65,11 @@ dataLayer.push({
     page_title: initContextData?.title,
 });
 
+// function to log messages to the console (if enabled in the config)
+function pixelLog(message, ...data) {
+    if (!config.developer.consoleLogging) return;
+    console.log(`>>> PIXEL: ${message}`, ...data);
+}
 
 // GTM script
 (function(w,d,s,l,i){
@@ -73,7 +83,6 @@ f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer', config.conversionTracking.gtmContainerId);
 
 
-
 /* *******************************************************************************
 ****************************** NON-ECOMMERCE EVENTS ******************************
 ********************************************************************************** */
@@ -84,12 +93,15 @@ if (config.conversionTracking.trackPageViews) {
 
         const eventContextData = event.context?.document;
 
-        window.dataLayer.push({
+        const dataLayerObj = {
             event: 'page_view',
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
-        });
+        }
+
+        window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF PAGE VIEW TRACKING *************** */
@@ -100,26 +112,32 @@ if (config.conversionTracking.trackClicks) {
 
         const eventContextData = event.context?.document;
 
-        window.dataLayer.push({
+        const dataLayerObj = {
             event: 'custom_click_storefront',
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
             data: event.customData,
-        });
+        }
+
+        window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
       
     analytics.subscribe('custom_link_click', (event) => {
 
         const eventContextData = event.context?.document;
 
-        window.dataLayer.push({
+        const dataLayerObj = {
             event: 'custom_click_link_storefront',
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
             data: event.customData,
-        });
+        }
+
+        window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
     /* *************** END OF CLICK TRACKING - storefront *************** */
       
@@ -146,6 +164,7 @@ if (config.conversionTracking.trackClicks) {
         }
         
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
         
         });
     }
@@ -158,13 +177,16 @@ if (config.conversionTracking.trackSearch) {
 
         const eventContextData = event.context?.document;
 
-        window.dataLayer.push({
+        const dataLayerObj = {
             event: 'view_search_results',
             page_location: eventContextData?.location?.href,
             page_referrer: eventContextData?.referrer,
             page_title: eventContextData?.title,
             search_term: event.data?.searchResult?.query,
-        });
+        }
+
+        window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });  
 }
 /* *************** END OF SEARCH *************** */
@@ -180,14 +202,18 @@ if (config.conversionTracking.trackFormSubmit) {
 
         // only fire form_submit if the form_action does NOT contain '/cart/add'
         if (!decodedAction.includes('/cart/add')) {
-            window.dataLayer.push({
+
+            const dataLayerObj = {
                 event: 'form_submit',
                 page_location: eventContextData?.location?.href,
                 page_referrer: eventContextData?.referrer,
                 page_title: eventContextData?.title,
                 form_action: event.data?.element?.action,
                 form_id: event.data?.element?.id,
-            });
+            }
+
+            window.dataLayer.push(dataLayerObj);
+            pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
         }
     });  
 }
@@ -204,12 +230,12 @@ if (config.conversionTracking.trackViewItemList) {
     
         const eventContextData = event.context?.document;
         const collection = event.data?.collection;
-        var googleAnalyticsProducts = [];
+        let googleAnalyticsProducts = [];
     
         // loop through the products:
         collection?.productVariants?.forEach(function(item, index) {
             // GA4
-            var productVariant = {
+            let productVariant = {
                 item_id: item.product?.id,
                 item_name: item.product?.title,
                 affiliation: config.store.affiliationName,
@@ -240,6 +266,7 @@ if (config.conversionTracking.trackViewItemList) {
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF VIEW ITEM LIST *************** */
@@ -250,10 +277,10 @@ if (config.conversionTracking.trackViewItem) {
     
         const eventContextData = event.context?.document;
         const productVariant = event.data?.productVariant;
-        var googleAnalyticsProducts = [];
+        let googleAnalyticsProducts = [];
 
         // GA4 - get the product info
-        var productInfo = {
+        let productInfo = {
             item_id: productVariant?.product?.id,
             item_name: productVariant?.product?.title,
             affiliation: config.store.affiliationName,
@@ -281,6 +308,7 @@ if (config.conversionTracking.trackViewItem) {
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF VIEW ITEM *************** */
@@ -292,10 +320,10 @@ if (config.conversionTracking.trackAddToCart) {
         
         const eventContextData = event.context?.document;
         const cartLine = event.data?.cartLine;
-        var googleAnalyticsProducts = [];
+        let googleAnalyticsProducts = [];
 
         // GA4 - get the product info
-        var productInfo = {
+        let productInfo = {
             item_id: cartLine?.merchandise?.product?.id,
             item_name: cartLine?.merchandise?.product?.title,
             affiliation: config.store.affiliationName,
@@ -323,6 +351,7 @@ if (config.conversionTracking.trackAddToCart) {
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF ADD TO CART *************** */
@@ -334,12 +363,12 @@ if (config.conversionTracking.trackViewCart) {
 
         const eventContextData = event.context?.document;
         const cart = event.data?.cart;
-        var googleAnalyticsProducts = [];
+        let googleAnalyticsProducts = [];
 
         // loop through the products:
         cart?.lines?.forEach(function(item, index) {
             // GA4
-            var lineItem = {
+            let lineItem = {
                 item_id: item.merchandise?.product?.id,
                 item_name: item.merchandise?.product?.title,
                 affiliation: config.store.affiliationName,
@@ -369,7 +398,8 @@ if (config.conversionTracking.trackViewCart) {
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
-        });
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
+    });
 }
 /* *************** END OF VIEW CART *************** */
 
@@ -380,10 +410,10 @@ if (config.conversionTracking.trackRemoveFromCart) {
     
         const eventContextData = event.context?.document;
         const cartLine = event.data?.cartLine;
-        var googleAnalyticsProducts = [];
+        let googleAnalyticsProducts = [];
 
         // GA4 - get the product info
-        var productInfo = {
+        let productInfo = {
             item_id: cartLine?.merchandise?.product?.id,
             item_name: cartLine?.merchandise?.product?.title,
             affiliation: config.store.affiliationName,
@@ -411,6 +441,7 @@ if (config.conversionTracking.trackRemoveFromCart) {
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF REMOVE FROM CART *************** */
@@ -441,9 +472,11 @@ const processCheckoutProducts = (items) => {
   
         // GA4: Calculate price after discount
         const itemPrice = item.variant.price.amount;
-        const priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
+        // Ensure priceAfterDiscount is never negative
+        let priceAfterDiscount = itemPrice - (itemDiscountAmount / item.quantity);
+        priceAfterDiscount = Math.max(priceAfterDiscount, 0);
   
-        // GA4
+        // GA4 - get the product info
         let lineItem = {
           item_id: item.variant?.product?.id,
           item_name: item.variant?.product?.title,
@@ -457,7 +490,6 @@ const processCheckoutProducts = (items) => {
           price: priceAfterDiscount,
           quantity: item.quantity
         };
-  
         finalProductArray.push(lineItem);
       });
     }
@@ -478,7 +510,31 @@ if (config.conversionTracking.trackBeginCheckout) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
+        let totalPrice = checkout.totalPrice.amount;
+        let shipping = checkout?.shippingLine?.price?.amount || 0;
+        let tax = checkout?.totalTax?.amount || 0;
+
+        // Extract the discount that applies to the shipping separately
+        let shippingDiscount = checkout.delivery?.selectedDeliveryOptions?.reduce((total, option) => {
+            let originalCost = option.cost?.amount || 0;
+            let discountedCost = option.costAfterDiscounts?.amount || 0;
+            return total + (originalCost - discountedCost);
+        }, 0) || 0;
+
+        // Total order value calculation
+        let totalOrderValue = totalPrice - shipping - tax;
+
+        pixelLog('Event data for ' + event.name + ': ', event.data, init);
+        pixelLog('Ecommerce object for ' + event.name + ': ', checkout);
+        pixelLog('discountsAmount: ' + orderDiscountAmount);
+        pixelLog('shipping discount: ' + shippingDiscount);
+        pixelLog('totalPrice: ' + totalPrice);
+        pixelLog('shipping: ' + shipping);
+        pixelLog('tax: ' + tax);
+        pixelLog('totalOrderValue: ' + totalOrderValue);
+
+        // Process products for GA4
+        const processedProducts = processCheckoutProducts(checkout?.lineItems);
 
         // Construct the data layer object:
         const dataLayerObj = {
@@ -489,15 +545,16 @@ if (config.conversionTracking.trackBeginCheckout) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: totalOrderValue,
-                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined, 
+                coupon: checkout.discountApplications?.map(d => d.title).filter(Boolean).join(',') || undefined,
                 discount: orderDiscountAmount,
-                items: processCheckoutProducts(checkout?.lineItems).items
+                items: processedProducts.items
             }
         }
 
         // Push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF BEGIN CHECKOUT *************** */
@@ -510,7 +567,31 @@ if (config.conversionTracking.trackAddShippingInfo) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
+        let totalPrice = checkout.totalPrice.amount;
+        let shipping = checkout?.shippingLine?.price?.amount || 0;
+        let tax = checkout?.totalTax?.amount || 0;
+
+        // Extract the discount that applies to the shipping separately
+        let shippingDiscount = checkout.delivery?.selectedDeliveryOptions?.reduce((total, option) => {
+            let originalCost = option.cost?.amount || 0;
+            let discountedCost = option.costAfterDiscounts?.amount || 0;
+            return total + (originalCost - discountedCost);
+        }, 0) || 0;
+
+        // Total order value calculation
+        let totalOrderValue = totalPrice - shipping - tax;
+
+        pixelLog('Event data for ' + event.name + ': ', event.data, init);
+        pixelLog('Ecommerce object for ' + event.name + ': ', checkout);
+        pixelLog('discountsAmount: ' + orderDiscountAmount);
+        pixelLog('shipping discount: ' + shippingDiscount);
+        pixelLog('totalPrice: ' + totalPrice);
+        pixelLog('shipping: ' + shipping);
+        pixelLog('tax: ' + tax);
+        pixelLog('totalOrderValue: ' + totalOrderValue);
+
+        // Process products for GA4
+        const processedProducts = processCheckoutProducts(checkout?.lineItems);
 
         // construct the data layer object:
         const dataLayerObj = {
@@ -521,16 +602,17 @@ if (config.conversionTracking.trackAddShippingInfo) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: totalOrderValue,
-                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
+                coupon: checkout.discountApplications?.map(d => d.title).filter(Boolean).join(',') || undefined,
                 discount: orderDiscountAmount,
                 shipping_tier: checkout.delivery?.selectedDeliveryOptions?.[0]?.title || undefined,
-                items: processCheckoutProducts(checkout?.lineItems).items
+                items: processedProducts.items
             }
         }
 
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF ADD SHIPPING INFO *************** */
@@ -543,7 +625,31 @@ if (config.conversionTracking.trackAddPaymentInfo) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
+        let totalPrice = checkout.totalPrice.amount;
+        let shipping = checkout?.shippingLine?.price?.amount || 0;
+        let tax = checkout?.totalTax?.amount || 0;
+
+        // Extract the discount that applies to the shipping separately
+        let shippingDiscount = checkout.delivery?.selectedDeliveryOptions?.reduce((total, option) => {
+            let originalCost = option.cost?.amount || 0;
+            let discountedCost = option.costAfterDiscounts?.amount || 0;
+            return total + (originalCost - discountedCost);
+        }, 0) || 0;
+
+        // Total order value calculation
+        let totalOrderValue = totalPrice - shipping - tax;
+
+        pixelLog('Event data for ' + event.name + ': ', event.data, init);
+        pixelLog('Ecommerce object for ' + event.name + ': ', checkout);
+        pixelLog('discountsAmount: ' + orderDiscountAmount);
+        pixelLog('shipping discount: ' + shippingDiscount);
+        pixelLog('totalPrice: ' + totalPrice);
+        pixelLog('shipping: ' + shipping);
+        pixelLog('tax: ' + tax);
+        pixelLog('totalOrderValue: ' + totalOrderValue);
+
+        // Process products for GA4
+        const processedProducts = processCheckoutProducts(checkout?.lineItems);
 
         // construct the data layer object:
         const dataLayerObj = {
@@ -554,15 +660,16 @@ if (config.conversionTracking.trackAddPaymentInfo) {
             ecommerce: {
                 currency: checkout?.currencyCode,
                 value: totalOrderValue,
-                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
+                coupon: checkout.discountApplications?.map(d => d.title).filter(Boolean).join(',') || undefined,
                 discount: orderDiscountAmount,
-                items: processCheckoutProducts(checkout?.lineItems).items
+                items: processedProducts.items
             }
         }
 
         // push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF ADD PAYMENT INFO *************** */
@@ -575,10 +682,34 @@ if (config.conversionTracking.trackPurchase) {
         const eventContextData = event.context?.document;
         const checkout = event.data?.checkout;
         let orderDiscountAmount = checkout.discountsAmount?.amount || 0;
-        let totalOrderValue = (checkout.subtotalPrice?.amount || 0) - orderDiscountAmount;
+        let totalPrice = checkout.totalPrice.amount;
+        let shipping = checkout?.shippingLine?.price?.amount || 0;
+        let tax = checkout?.totalTax?.amount || 0;
+
+        // Extract the discount that applies to the shipping separately
+        let shippingDiscount = checkout.delivery?.selectedDeliveryOptions?.reduce((total, option) => {
+            let originalCost = option.cost?.amount || 0;
+            let discountedCost = option.costAfterDiscounts?.amount || 0;
+            return total + (originalCost - discountedCost);
+        }, 0) || 0;
+
+        // Total order value calculation
+        let totalOrderValue = totalPrice - shipping - tax;
+
+        pixelLog('Event data for ' + event.name + ': ', event.data, init);
+        pixelLog('Ecommerce object for ' + event.name + ': ', checkout);
+        pixelLog('discountsAmount: ' + orderDiscountAmount);
+        pixelLog('shipping discount: ' + shippingDiscount);
+        pixelLog('totalPrice: ' + totalPrice);
+        pixelLog('shipping: ' + shipping);
+        pixelLog('tax: ' + tax);
+        pixelLog('totalOrderValue: ' + totalOrderValue);
 
         // Determine the payment type
         const paymentType = checkout?.transactions?.[0]?.gateway || 'no payment type';
+
+        // Process products for GA4
+        const processedProducts = processCheckoutProducts(checkout?.lineItems);
 
         // Construct the data layer object
         const dataLayerObj = {
@@ -592,19 +723,20 @@ if (config.conversionTracking.trackPurchase) {
                 transaction_id: checkout?.order?.id,
                 currency: checkout?.currencyCode,
                 value: totalOrderValue,
-                tax: checkout?.totalTax?.amount || 0,
-                shipping: checkout?.shippingLine?.price?.amount || 0,
+                tax: tax,
+                shipping: shipping,
                 shipping_tier: checkout.delivery?.selectedDeliveryOptions?.[0]?.title || undefined, 
-                coupon: processCheckoutProducts(checkout?.lineItems).orderCouponString || undefined,
+                coupon: checkout.discountApplications?.map(d => d.title).filter(Boolean).join(',') || undefined,
                 discount: orderDiscountAmount,
                 payment_type: paymentType,
-                items: processCheckoutProducts(checkout?.lineItems).items
+                items: processedProducts.items
             }
         };
 
         // Push the content to the dataLayer:
         window.dataLayer.push({ 'ecommerce': null });
         window.dataLayer.push(dataLayerObj);
+        pixelLog('Data pushed to the dataLayer: ', dataLayerObj);
     });
 }
 /* *************** END OF PURCHASE *************** */
