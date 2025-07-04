@@ -23,7 +23,7 @@ make sure to go through the settings below and change the values where applicabl
 const config = {
     /* *************** CONVERSION TRACKING SETTINGS *************** */
     conversionTracking: {
-        gtmContainerId: 'GTM-XXXXXX', // replace with your Google Tag Manager container ID
+        gtmContainerId: 'GTM-N8CVT6L', // replace with your Google Tag Manager container ID
         // change to false for events that you don't want to be pushed to the data layer:
         trackPageViews: true,
         trackClicks: true,
@@ -38,6 +38,7 @@ const config = {
         trackAddShippingInfo: true,
         trackAddPaymentInfo: true,
         trackPurchase: true,
+        trackKlaviyo: true
     },
 
     /* *************** STORE SETTINGS *************** */
@@ -740,3 +741,15 @@ if (config.conversionTracking.trackPurchase) {
     });
 }
 /* *************** END OF PURCHASE *************** */
+
+/* *************** KLAVIYO *************** */
+if (config.conversionTracking.trackKlaviyo) {
+  analytics.subscribe('klaviyo_form_submitted', (event) => {
+    window.dataLayer.push({
+      event: 'klaviyo_form_submit',
+      formId: event.customData.form_id,
+      formTitle: event.customData.form_title
+    });
+  });
+}
+/* *************** END KLAVIYO *************** */
