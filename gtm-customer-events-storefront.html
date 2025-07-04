@@ -1,7 +1,5 @@
-<!-- create a new Snippet called 'gtm-customer-events-storefront' and paste the below code into it -->
-
-<!-- click tracking -->
 <script>
+
     // function that gets the path of the clicked element. Borrowed from Simo Ahava. https://www.simoahava.com/analytics/create-css-path-variable-for-click-element/
    function gtm_get_click_element_path(element) {
     var el = element;
@@ -51,6 +49,15 @@
          click_url : closestLink.href || ''
        })
      }
+  });
+  
+  window.addEventListener('klaviyoForms', function(e) {
+    if (e.detail.type == 'submit'){
+      Shopify.analytics.publish('klaviyo_form_submitted', {
+        form_id: e.detail.formId || null,
+        form_title: e.detail.metaData.$source || null
+      });
+    }
   });
 </script>
 <!-- end of click tracking -->
