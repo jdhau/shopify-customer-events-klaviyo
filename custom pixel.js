@@ -23,7 +23,7 @@ make sure to go through the settings below and change the values where applicabl
 const config = {
     /* *************** CONVERSION TRACKING SETTINGS *************** */
     conversionTracking: {
-        gtmContainerId: 'GTM-N8CVT6L', // replace with your Google Tag Manager container ID
+        gtmContainerId: 'GTM-XXXXXX', // replace with your Google Tag Manager container ID
         // change to false for events that you don't want to be pushed to the data layer:
         trackPageViews: true,
         trackClicks: true,
